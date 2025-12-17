@@ -1,0 +1,6 @@
+cat > hosts.txt <<'EOF'
+10.1.8.72 slots=8
+10.1.8.73 slots=8
+10.1.8.74 slots=8
+10.1.8.75 slots=8
+EOF

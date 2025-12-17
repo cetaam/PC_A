@@ -1,18 +1,21 @@
-// naive_mpi.cpp
+// naive_ompi.cpp (Hybrid MPI + OpenMP)
 #include <mpi.h>
+#include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "matrix_io.h"
 
-static void sequential_matrix_mult(const double *local_A, const double *B,
-                                   double *local_C, int local_rows, int N) {
+static void hybrid_matrix_mult(const double *local_A, const double *B,
+                               double *local_C, int local_rows, int N) {
+    #pragma omp parallel for schedule(static)
     for (int i = 0; i < local_rows; i++) {
         for (int j = 0; j < N; j++) local_C[i*N + j] = 0.0;
 
         for (int k = 0; k < N; k++) {
             double r = local_A[i*N + k];
             const double *b = B + k*N;
+            #pragma omp simd
             for (int j = 0; j < N; j++) local_C[i*N + j] += r * b[j];
         }
     }
@@ -75,7 +78,7 @@ int main(int argc, char **argv) {
                  local_A, my_rows*N, MPI_DOUBLE,
                  0, MPI_COMM_WORLD);
 
-    sequential_matrix_mult(local_A, B, local_C, my_rows, N);
+    hybrid_matrix_mult(local_A, B, local_C, my_rows, N);
 
     MPI_Gatherv(local_C, my_rows*N, MPI_DOUBLE,
                 C, sendcounts, displs, MPI_DOUBLE,
@@ -85,8 +88,9 @@ int main(int argc, char **argv) {
     double t1 = MPI_Wtime();
 
     if (rank == 0) {
-        printf("MPI Naive (N=%d, np=%d) Time: %f s\n", N, size, t1 - t0);
-        verify_or_warn("[naive_mpi]", A, B, C, N, N);
+        printf("Hybrid Naive (MPI+OpenMP) (N=%d, np=%d, threads=%d) Time: %f s\n",
+               N, size, omp_get_max_threads(), t1 - t0);
+        verify_or_warn("[naive_ompi]", A, B, C, N, N);
         free(A); free(B); free(C);
     } else {
         free(B);
