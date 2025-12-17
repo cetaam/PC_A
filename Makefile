@@ -96,8 +96,8 @@ run_cluster: generate all
 	@echo "CLUSTER RUN N=$(N) hostfile=$(HOSTFILE) PROCS=$(PROCS) THREADS=$(THREADS)"
 	@echo "=========================================================="
 
-	@echo "\n>>> 1) OpenMP (single node only) THREADS=$(THREADS)"
-	OMP_NUM_THREADS=$(THREADS) ./naive_omp $(N) matrix_input.txt
+#	@echo "\n>>> 1) OpenMP (single node only) THREADS=$(THREADS)"
+#	OMP_NUM_THREADS=$(THREADS) ./naive_omp $(N) matrix_input.txt
 
 	@echo "\n>>> 2) MPI naive: PROCS=$(PROCS)"
 	$(MPI_RUN) ./naive_mpi $(N) matrix_input.txt
