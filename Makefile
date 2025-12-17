@@ -18,13 +18,13 @@ TOTAL ?= $(shell echo $$(( $(PROCS) * $(THREADS) )))
 
 # Allow overriding the mpirun command (some clusters use srun, mpiexec, etc.)
 MPIRUN ?= mpirun
-HOSTFILE ?= hosts.txt
+HOSTFILE ?= host.txt
 
 MPI_HOSTFLAGS = --hostfile $(HOSTFILE)
 # MPI-only: one rank per node is typical
 MPI_RUN = $(MPIRUN) $(MPI_HOSTFLAGS) -np $(PROCS)
 # Target Binaries
-TARGETS = naive_omp strassen_omp 
+TARGETS = naive_mpi naive_ompi strassen_mpi strassen_ompi
 
 # Default: Build all naive binaries
 all: $(TARGETS)
